@@ -7,7 +7,7 @@
 
 import Foundation
 
-class ApiConstans {
+final class ApiConstans {
     
     static let serverPath = "https://junior.balinasoft.com/api/v2/photo"
     

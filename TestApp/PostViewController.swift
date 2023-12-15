@@ -4,12 +4,11 @@
 //
 //  Created by ульяна on 13.12.23.
 //
-import Foundation
 import UIKit
 import Kingfisher
 import Alamofire
 
-class PostViewController: UIViewController {
+final class PostViewController: UIViewController {
     
     var photoTypeDtoOut = [PhotoTypeDtoOut]()
     var tableView: UITableView!
@@ -21,7 +20,7 @@ class PostViewController: UIViewController {
         setupTableView()
     }
     
-    func getList() {
+    private func getList() {
         NetworkService.fetchList { [weak self] result, error in
             guard let result = result?.content else { return }
             self?.photoTypeDtoOut = result

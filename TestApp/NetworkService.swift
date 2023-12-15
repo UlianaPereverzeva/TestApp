@@ -9,7 +9,7 @@ import Foundation
 import Alamofire
 import UIKit
 
-class NetworkService {
+final class NetworkService {
     
     static func fetchList(callBack: @escaping (PagePhotoTypeDtoOut?, Error?) -> Void) {
         
