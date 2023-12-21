@@ -11,9 +11,9 @@ import UIKit
 
 final class NetworkService {
     
-    static func fetchList(callBack: @escaping (PagePhotoTypeDtoOut?, Error?) -> Void) {
+    static func fetchList(page: Int32, callBack: @escaping (PagePhotoTypeDtoOut?, Error?) -> Void) {
         
-        let url = ApiConstans.PagePhotoTypeDtoOutPath
+        let url = "\(ApiConstans.PagePhotoTypeDtoOutPath)\(page)"
         
         AF.request(url, method: .get, parameters: nil, encoding: JSONEncoding.default, headers: nil).response { response in
             
@@ -58,5 +58,6 @@ final class NetworkService {
         }
     }
 }
+ 
 
 

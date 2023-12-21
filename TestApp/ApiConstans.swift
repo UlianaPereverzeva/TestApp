@@ -13,6 +13,6 @@ final class ApiConstans {
     
     static let PhotoDtoOutPath = serverPath
 
-    static let PagePhotoTypeDtoOutPath = serverPath + "/type?page=1"
+    static let PagePhotoTypeDtoOutPath = serverPath + "/type?page="
       
 }

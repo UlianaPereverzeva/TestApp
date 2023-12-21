@@ -8,23 +8,53 @@ import UIKit
 import Kingfisher
 import Alamofire
 
+
 final class PostViewController: UIViewController {
     
-    var photoTypeDtoOut = [PhotoTypeDtoOut]()
-    var tableView: UITableView!
-    var id : Int32?
+    private var photoTypeDtoOut = [PhotoTypeDtoOut]()
+    private var tableView: UITableView!
+    private var id : Int32?
+    
+    private var currentPage: Int32 = 0
+    private var totalPages: Int32 = 1
+    private var isLoadingData = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        getList()
+        getList(page: 1)
         setupTableView()
     }
     
-    private func getList() {
-        NetworkService.fetchList { [weak self] result, error in
-            guard let result = result?.content else { return }
-            self?.photoTypeDtoOut = result
-            self?.tableView.reloadData()
+    private func createSpinerFooter() -> UIView {
+        let footerView = UIView(frame: CGRect (x: 0, y: 0, width: view.frame.size.width, height: 100))
+        let spinner = UIActivityIndicatorView()
+        spinner.center = footerView.center
+        footerView.addSubview(spinner)
+        spinner.startAnimating()
+        
+        return footerView
+    }
+    
+    private func getList(page: Int32) {
+        guard !isLoadingData else { return }
+        isLoadingData = true
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2.0) { [weak self] in
+            NetworkService.fetchList(page: page) { [weak self] result, error in
+                guard let result = result else {
+                    self?.isLoadingData = false
+                    return
+                }
+                self?.totalPages = result.totalPages ?? 1
+                if page == 0 {
+                    self?.photoTypeDtoOut = result.content ?? []
+                } else {
+                    self?.photoTypeDtoOut.append(contentsOf: result.content ?? [])
+                }
+                self?.tableView.reloadData()
+                self?.isLoadingData = false
+                self?.tableView.tableFooterView = nil
+            }
         }
     }
     
@@ -45,7 +75,7 @@ final class PostViewController: UIViewController {
     }
 }
 
-extension PostViewController: UITableViewDataSource, UITableViewDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+extension PostViewController: UITableViewDataSource, UITableViewDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate, UIScrollViewDelegate {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return photoTypeDtoOut.count
@@ -66,7 +96,6 @@ extension PostViewController: UITableViewDataSource, UITableViewDelegate, UIImag
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        
         self.id = photoTypeDtoOut[indexPath.row].id
         let imagePicker = UIImagePickerController()
         imagePicker.sourceType = .camera
@@ -96,7 +125,20 @@ extension PostViewController: UITableViewDataSource, UITableViewDelegate, UIImag
     func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
         picker.dismiss(animated: true, completion: nil)
     }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let offsetY = scrollView.contentOffset.y
+        let contentHeight = scrollView.contentSize.height - scrollView.frame.size.height
+        
+        if offsetY > contentHeight - 50, !isLoadingData, currentPage < totalPages - 1 {
+            currentPage += 1
+            self.tableView.tableFooterView = createSpinerFooter()
+            getList(page: currentPage)
+        }
+    }
 }
+
+
 
 
 
