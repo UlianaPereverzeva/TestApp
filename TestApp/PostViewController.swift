@@ -8,7 +8,6 @@ import UIKit
 import Kingfisher
 import Alamofire
 
-
 final class PostViewController: UIViewController {
     
     private var photoTypeDtoOut = [PhotoTypeDtoOut]()
@@ -97,6 +96,7 @@ extension PostViewController: UITableViewDataSource, UITableViewDelegate, UIImag
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         self.id = photoTypeDtoOut[indexPath.row].id
+        guard UIImagePickerController.isSourceTypeAvailable(.camera) else { return }
         let imagePicker = UIImagePickerController()
         imagePicker.sourceType = .camera
         imagePicker.delegate = self
